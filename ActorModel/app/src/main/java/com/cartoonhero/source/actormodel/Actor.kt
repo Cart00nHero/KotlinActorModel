@@ -25,7 +25,7 @@ abstract class Actor {
                 act(msg)
             }
         }
-        mSystem.messages.collect(actor::send)
+        mSystem.mailbox.collect(actor::send)
     }
     private fun sendMessage(message: Message) = mSystem.send(message)
     private fun act(message: Message) {
