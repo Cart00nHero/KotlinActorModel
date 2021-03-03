@@ -9,34 +9,40 @@ import kotlinx.coroutines.flow.collect
 abstract class Actor {
 
     private val scope = CoroutineScope(Dispatchers.Default + Job())
-    private val stream = ActorStream()
+    private val mSystem = ActorSystem()
+    private var isStarted = true
     private data class ActorMessage(
         val send: () -> Unit
     ): Message
 
     init {
-        start()
+        startScope()
     }
 
-    private fun start() = scope.launch {
+    private fun startScope() = scope.launch {
         val actor = actor<Message>(scope.coroutineContext) {
             for (msg in channel) {
                 act(msg)
             }
         }
-        stream.messages.collect(actor::send)
+        mSystem.messages.collect(actor::send)
     }
-    private fun sendMessage(message: Message) = stream.send(message)
+    private fun sendMessage(message: Message) = mSystem.send(message)
     private fun act(message: Message) {
         when(message) {
             is ActorMessage -> message.send()
         }
     }
 
+    fun start() {
+        if (!isStarted) startScope()
+        isStarted = true
+    }
     fun send(sender: () -> Unit) {
         sendMessage(ActorMessage(sender))
     }
     fun cancel() {
-        scope.cancel()
+        if (isStarted) scope.cancel()
+        isStarted = false
     }
 }

@@ -4,6 +4,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.channels.BroadcastChannel
+import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 import kotlin.coroutines.EmptyCoroutineContext
@@ -11,17 +12,19 @@ import kotlin.coroutines.EmptyCoroutineContext
 interface Message
 
 @ExperimentalCoroutinesApi
-class ActorStream {
-    private val streamScope: CoroutineScope =
+class ActorSystem {
+    private val systemScope: CoroutineScope =
         CoroutineScope(EmptyCoroutineContext + SupervisorJob())
-    private val channel: BroadcastChannel<Message> = BroadcastChannel(100)
+    private val channel: Channel<Message> = Channel(100)
+//    private val channel: BroadcastChannel<Message> = BroadcastChannel(100)
 
     fun send(event: Message) {
-        streamScope.launch {
+        systemScope.launch {
             channel.send(event)
         }
     }
 
     val messages: Flow<Message>
-        get() = flow { emitAll(channel.openSubscription()) }
+        get() = flow { emitAll(channel.receiveAsFlow()) }
+//        get() = flow { emitAll(channel.openSubscription()) }
 }
