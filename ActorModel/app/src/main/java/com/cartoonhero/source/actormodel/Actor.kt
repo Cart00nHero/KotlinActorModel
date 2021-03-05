@@ -10,7 +10,6 @@ abstract class Actor {
 
     private val scope = CoroutineScope(Dispatchers.Default + Job())
     private val mSystem = ActorSystem()
-    private var isStarted = true
     private data class ActorMessage(
         val send: () -> Unit
     ): Message
@@ -35,14 +34,12 @@ abstract class Actor {
     }
 
     fun start() {
-        if (!isStarted) startScope()
-        isStarted = true
+        if (!scope.isActive) startScope()
     }
     fun send(sender: () -> Unit) {
         sendMessage(ActorMessage(sender))
     }
     fun cancel() {
-        if (isStarted) scope.cancel()
-        isStarted = false
+        if (scope.isActive) scope.cancel()
     }
 }
