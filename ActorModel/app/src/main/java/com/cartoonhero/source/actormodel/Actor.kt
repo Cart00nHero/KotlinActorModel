@@ -8,8 +8,8 @@ import kotlinx.coroutines.flow.collect
 @ExperimentalCoroutinesApi
 abstract class Actor {
 
-    private val scope = CoroutineScope(Dispatchers.Default + Job())
     private val mSystem = ActorSystem()
+    private val scope = CoroutineScope(Dispatchers.Default + Job())
     private data class ActorMessage(
         val send: () -> Unit
     ): Message

@@ -13,13 +13,13 @@ interface Message
 
 @ExperimentalCoroutinesApi
 class ActorSystem {
-    private val systemScope: CoroutineScope =
+    private val scope: CoroutineScope =
         CoroutineScope(EmptyCoroutineContext + SupervisorJob())
 //    private val channel: Channel<Message> = Channel(100)
     private val channel: BroadcastChannel<Message> = BroadcastChannel(100)
 
     fun send(event: Message) {
-        systemScope.launch {
+        scope.launch {
             channel.send(event)
         }
     }
